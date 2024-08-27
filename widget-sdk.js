@@ -72,7 +72,7 @@ class IntelliWidget {
 		  redirect: "follow"
 		};
 
-		const response = await fetch(this.widgetConfig.baseURL + `/widget/${this.widgetConfig.name}`, requestOptions);
+		const response = await fetch(this.widgetConfig.baseURL + `/widgets/${this.widgetConfig.name}`, requestOptions);
 		const result = await response.text();
 
 		var container = document.createElement('div');
@@ -117,7 +117,7 @@ class IntelliWidget {
 		}
 
 		this.instances.push(selector);
-		const uid = this.widgetId + '-' + this.instances.toString();
+		const uid = this.widgetId + '-' + this.instances.length.toString();
 		const innerHTML = this.innerContent.outerHTML.replace('intelli-widget-id', uid);
 		targetElem.innerHTML = innerHTML;
 
@@ -325,6 +325,7 @@ class IntelliProveWidgets {
 	*/
 	static load() {
 		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs.js")
+		IntelliProveWidgets.injectModule("https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.js")
 		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs-plugin-datalabels.js", IntelliProveWidgets.chartJSLoaded)
 	}
 
