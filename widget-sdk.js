@@ -73,6 +73,8 @@ class IntelliWidget {
 		};
 
 		const response = await fetch(this.widgetConfig.baseURL + `/widgets/${this.widgetConfig.name}`, requestOptions);
+		// TODO: if check on status code
+
 		const result = await response.text();
 
 		var container = document.createElement('div');
@@ -325,7 +327,7 @@ class IntelliProveWidgets {
 	*/
 	static load() {
 		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs.js")
-		IntelliProveWidgets.injectModule("https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.js")
+		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/d3.js")
 		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs-plugin-datalabels.js", IntelliProveWidgets.chartJSLoaded)
 	}
 
