@@ -1,3 +1,77 @@
+class IntelliAuthError extends Error {
+	/**
+		* Error: Invalid authentication
+		* @constructor
+		* @param {string} message - The error message
+	*/
+	constructor(message) {
+		super(message);
+		this.name = "IntelliAuthError";
+	}
+}
+
+class IntelliActionTokenError extends Error {
+	/**
+		* Error: There is something wrong with the provided action token
+		* @constructor
+		* @param {string} message - The error message
+	*/
+	constructor(message) {
+		super(message);
+		this.name = "IntelliActionTokenError";
+	}
+}
+
+class IntelliWidgetNotFoundError extends Error {
+	/**
+		* Error: widget or variation for widget not found
+		* @constructor
+		* @param {string} message - The error message
+	*/
+	constructor(message) {
+		super(message);
+		this.name = "IntelliWidgetNotFoundError";
+	}
+}
+
+class IntelliInvalidParamaterError extends Error {
+	/**
+		* Error: Invalid paramater or value for paramater provided
+		* @constructor
+		* @param {string} message - The error message
+	*/
+	constructor(message) {
+		super(message);
+		this.name = "IntelliInvalidParamaterError";
+	}
+}
+
+class IntelliUnexpectedError extends Error {
+	/**
+		* Error: An unexpected
+		* @constructor
+		* @param {string} message - The error message
+	*/
+	constructor(message) {
+		super(message);
+		this.name = "IntelliUnexpectedError";
+	}
+}
+
+
+class IntelliSdkLoadingError extends Error {
+	/**
+		* Error: The widget SDK failed to load
+		* @constructor
+		* @param {string} message - The error message
+	*/
+	constructor(message) {
+		super(message);
+		this.name = "IntelliSdkLoadingError";
+	}
+}
+
+
 
 class IntelliWidgetConfig {
 	/**
@@ -18,7 +92,6 @@ class IntelliWidgetConfig {
 		this.auth = auth;
 	}
 }
-
 
 class IntelliWidget {
 	/**
@@ -73,7 +146,20 @@ class IntelliWidget {
 		};
 
 		const response = await fetch(this.widgetConfig.baseURL + `/widgets/${this.widgetConfig.name}`, requestOptions);
-		// TODO: if check on status code
+		switch (response.status) {
+			case 400:
+				throw new IntelliActionTokenError("Your authentication is valid but it does not contain a link to a user.");
+			case 401:
+				throw new IntelliActionTokenError("Your authentication is invalid. Please double check and/or refresh your authentication.");
+			case 404:
+				throw new IntelliWidgetNotFoundError("The widget or variation for the provided widget does not seem to exists. Please check our documantation for a list of all available widgets and variations.");
+			case 422:
+				const validationError = await response.json();
+				throw new IntelliInvalidParamaterError(`'${validationError[0]['loc']}': ${validationError[0]['msg']}`);
+			case 500:
+				console.error(await response.text());
+				throw new IntelliUnexpectedError("An unexcpected server error occurred, cannot load widget. If this issue persists, please contact our support team.");
+		}
 
 		const result = await response.text();
 
@@ -204,6 +290,7 @@ class IntelliProveWidgets {
 		this.url = url;
 		this.action_token = action_token;
 		IntelliProveWidgets.load(url)
+		this.modulesLoadStart = Date.now();
 
 		this.locale = locale;
 	}
@@ -240,6 +327,13 @@ class IntelliProveWidgets {
 	*/
 	static loaded() {
 		return IntelliProveWidgets.chartJSLoaded() && IntelliProveWidgets.chartJSPluginsLoaded()
+	}
+
+	/**
+		* Check if the module loading has exceeded the limit
+	*/
+	static loadTimeExceeded() {
+		return this.modulesLoadStart + 10_000 < Date.now();
 	}
 
 	/**
@@ -352,6 +446,9 @@ class IntelliProveWidgets {
 		while (!IntelliProveWidgets.loaded()) {
 			console.log("waiting")
 			await new Promise(r => setTimeout(r, 50));
+			if (IntelliProveWidgets.loadTimeExceeded()) {
+				throw new IntelliSdkLoadingError("Failed to load required JS modules for our widgets, please reload the page. If this issue persists, please contact our support team.");
+			}
 		}
 
 		let widget = new IntelliWidget(IntelliProveWidgets.newId(), widgetConfig)
