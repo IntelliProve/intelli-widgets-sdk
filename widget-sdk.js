@@ -293,6 +293,8 @@ class IntelliProveWidgets {
 		IntelliProveWidgets.load(url)
 
 		this.locale = locale;
+
+		this._loadingWidgetHTML = null;
 	}
 
 	/** 
@@ -381,7 +383,7 @@ class IntelliProveWidgets {
 	/**
 		* Inject a script into the HTML document body
 		* @param {HTMLScriptElement} script - Script to inject
-		* @param {string | null} [replaceId=null] - Optional: if required, override the 'intelli-widget-it' with the provided id
+		* @param {string | null} [replaceId=null] - Optional: if required, override the 'intelli-widget-id' with the provided id
 	*/
 	static injectBodyScript(script, replaceId = null) {
 		const newScript = document.createElement("script");
@@ -435,6 +437,22 @@ class IntelliProveWidgets {
 		window.postMessage({"target": "intelli-widgets", "kind": "language", "data": this.locale})
 	}
 
+	async getLoadingWidget() {
+		if (this._loadingWidgetHTML) {
+			return this._loadingWidgetHTML;
+		}
+
+		const uri = "https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/widget-loading.html";
+		const requestOptions = {
+		  method: "GET",
+		  redirect: "follow"
+		};
+
+		const response = await fetch(uri, requestOptions);
+		this._loadingWidgetHTML = await response.text();
+		return this._loadingWidgetHTML;
+	}
+
 	/**
 		* Get a UI widget
 		* @param {string} name - Name of the widget to get
@@ -455,6 +473,28 @@ class IntelliProveWidgets {
 		let widget = new IntelliWidget(IntelliProveWidgets.newId(), widgetConfig)
 		await widget.fetch();
 
+		return widget;
+	}
+
+	/**
+		* Get and mount a UI widget, includes loading widget while fetching
+		* @param {string} selector - The query selector of the HTML element to target
+		* @param {string} name - Name of the widget to get
+		* @param {object} config - The configuration object for the specified widget
+		* @param {string} [variation=""] - Optional: specify the variation of the widget
+		* @param {{}} [themeOverrides={}] - Optional: theme overrides for this specific widget
+	*/
+	async mountWidget(selector, name, config, variation = "default", themeOverrides = {}) {
+		const loadingWidget = await this.getLoadingWidget();
+		const widgetPromise = this.getWidget(name, config, variation, themeOverrides);
+
+		const elem = document.querySelector(selector);
+		if (elem) {
+			elem.innerHTML = loadingWidget;
+		}
+
+		const widget = await widgetPromise;
+		widget.mount(selector);
 		return widget;
 	}
 
