@@ -289,8 +289,8 @@ class IntelliProveWidgets {
 	constructor(url, action_token, locale = 'en') {
 		this.url = url;
 		this.action_token = action_token;
-		IntelliProveWidgets.load(url)
 		this.modulesLoadStart = Date.now();
+		IntelliProveWidgets.load(url)
 
 		this.locale = locale;
 	}
@@ -329,12 +329,6 @@ class IntelliProveWidgets {
 		return IntelliProveWidgets.chartJSLoaded() && IntelliProveWidgets.chartJSPluginsLoaded()
 	}
 
-	/**
-		* Check if the module loading has exceeded the limit
-	*/
-	static loadTimeExceeded() {
-		return this.modulesLoadStart + 10_000 < Date.now();
-	}
 
 	/**
 		* Inject a script into the HTML head
@@ -426,6 +420,13 @@ class IntelliProveWidgets {
 	}
 
 	/**
+		* Check if the module loading has exceeded the limit
+	*/
+	loadTimeExceeded() {
+		return this.modulesLoadStart + 10_000 < Date.now();
+	}
+	
+	/**
 		* Change the default language and update all existing components
 		* @param {string} locale - The language to use: 'en', 'nl', 'fr'
 	*/
@@ -446,7 +447,7 @@ class IntelliProveWidgets {
 		while (!IntelliProveWidgets.loaded()) {
 			console.log("waiting")
 			await new Promise(r => setTimeout(r, 50));
-			if (IntelliProveWidgets.loadTimeExceeded()) {
+			if (this.loadTimeExceeded()) {
 				throw new IntelliSdkLoadingError("Failed to load required JS modules for our widgets, please reload the page. If this issue persists, please contact our support team.");
 			}
 		}
