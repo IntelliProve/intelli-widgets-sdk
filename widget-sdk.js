@@ -294,7 +294,7 @@ class IntelliProveWidgets {
 
 		this.locale = locale;
 
-		this._loadingWidgetHTML = null;
+		this._loadingWidgetPromise = null;
 	}
 
 	/** 
@@ -437,10 +437,8 @@ class IntelliProveWidgets {
 		window.postMessage({"target": "intelli-widgets", "kind": "language", "data": this.locale})
 	}
 
-	async getLoadingWidget() {
-		if (this._loadingWidgetHTML) {
-			return this._loadingWidgetHTML;
-		}
+	async fetchLoadingWidget(retries = 0) {
+		if (retries >= 5) return "Loading...";
 
 		const uri = "https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/widget-loading.html";
 		const requestOptions = {
@@ -449,8 +447,19 @@ class IntelliProveWidgets {
 		};
 
 		const response = await fetch(uri, requestOptions);
-		this._loadingWidgetHTML = await response.text();
-		return this._loadingWidgetHTML;
+		if (response.status !== 200)
+			return await this.fetchLoadingWidget(retries + 1);
+		
+		return await response.text();
+	}
+
+	async getLoadingWidget() {
+		if (this._loadingWidgetPromise) {
+			return await this._loadingWidgetPromise;
+		}
+
+		this._loadingWidgetPromise = this.fetchLoadingWidget();
+		return this.getLoadingWidget();
 	}
 
 	/**
