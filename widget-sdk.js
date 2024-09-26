@@ -152,13 +152,14 @@ class IntelliWidget {
 			case 401:
 				throw new IntelliActionTokenError("Your authentication is invalid. Please double check and/or refresh your authentication.");
 			case 404:
-				throw new IntelliWidgetNotFoundError("The widget or variation for the provided widget does not seem to exists. Please check our documantation for a list of all available widgets and variations.");
+				const notFoundError = await response.json();
+				throw new IntelliWidgetNotFoundError(notFoundError['detail']);
 			case 422:
 				const validationError = await response.json();
 				throw new IntelliInvalidParamaterError(`'${validationError[0]['loc']}': ${validationError[0]['msg']}`);
 			case 500:
 				console.error(await response.text());
-				throw new IntelliUnexpectedError("An unexcpected server error occurred, cannot load widget. If this issue persists, please contact our support team.");
+				throw new IntelliUnexpectedError("An unexpected server error occurred, cannot load widget. If this issue persists, please contact our support team.");
 		}
 
 		const result = await response.text();
