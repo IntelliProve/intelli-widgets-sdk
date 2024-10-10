@@ -287,13 +287,15 @@ class IntelliProveWidgets {
 		* @param {string} action_token - Action token (Auth)
 		* @param {string} locale - Language of widgets
 	*/
-	constructor(url, action_token, locale = 'en') {
-		this.url = url;
+	constructor(url, action_token, locale = 'en', version = 'v2') {
+		this.url = (url.at(-1) === "/" ? url : url + "/") + version;
+		this.locale = locale;
+		this.api_version = version;
+		
 		this.action_token = action_token;
 		this.modulesLoadStart = Date.now();
 		IntelliProveWidgets.load(url)
 
-		this.locale = locale;
 
 		this._loadingWidgetPromise = null;
 	}
