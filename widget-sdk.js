@@ -1,3 +1,9 @@
+/*
+	* @file Contains all the main code to manage intelli widgets in a website
+	* @author Seppe De Langhe <seppe.delanghe@intelliprove.com>
+	* @version 1.0.0
+*/
+
 class IntelliAuthError extends Error {
 	/**
 		* Error: Invalid authentication
@@ -288,15 +294,17 @@ class IntelliProveWidgets {
 		* @param {string} locale - Language of widgets
 		* @param {string} version - API version
 	*/
+
+		
 	constructor(action_token, url = 'https://engine.intelliprove.com', locale = 'en', version = 'v2') {
 		this.url = (url.at(-1) === "/" ? url : url + "/") + version;
-		this.locale = locale;
-		this.api_version = version;
-		
 		this.action_token = action_token;
+    this.api_version = version;
 		this.modulesLoadStart = Date.now();
-		IntelliProveWidgets.load(url)
-
+		this.cdnUrl = 'https://cdn.intelliprove.com';
+		this.locale = locale;
+		
+		IntelliProveWidgets.load(this.cdnUrl)
 
 		this._loadingWidgetPromise = null;
 	}
@@ -418,11 +426,12 @@ class IntelliProveWidgets {
 	/**
 		* Load all required libraries and modules to run IntelliProve UI widgets
 		* Check if required with 'loaded()'
+		* @param {string} cdnUrl - CDN URL to use to fetch modules from
 	*/
-	static load() {
-		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs.js")
-		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/d3.js")
-		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs-plugin-datalabels.js", IntelliProveWidgets.chartJSLoaded)
+	static load(cdnUrl) {
+		IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`)
+		IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`)
+		IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded)
 	}
 
 	/**
@@ -444,7 +453,7 @@ class IntelliProveWidgets {
 	async fetchLoadingWidget(retries = 0) {
 		if (retries >= 5) return "Loading...";
 
-		const uri = "https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/widget-loading.html";
+		const uri = `${this.cdnUrl}/content/v1/widget-loading.html`;
 		const requestOptions = {
 		  method: "GET",
 		  redirect: "follow"
