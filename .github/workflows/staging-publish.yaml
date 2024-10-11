@@ -1,0 +1,43 @@
+name: Upload new version to S3 STAGING CDN
+
+on:
+  push:
+    tags:
+      - '*-beta'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from JSDoc
+        id: extract_version
+        run: |
+          chmod +x ./extract-version.sh
+          version=$(./extract-version.sh ./widget-sdk.js)
+          echo "VERSION=${version}" >> $GITHUB_ENV
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.PROD_AWS_REGION }}
+
+      - name: Upload file to S3
+        run: |
+          aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
+          aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/beta.js"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id EAPK5U8J3EZ65  --paths "/packages/intelli-widgets/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-west-1"
+
+
