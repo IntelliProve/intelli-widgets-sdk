@@ -297,7 +297,7 @@ class IntelliProveWidgets {
 		this.url = url;
 		this.action_token = action_token;
 		this.modulesLoadStart = Date.now();
-		this.cdnUrl = 'https://cdn-dev.intelliprove.com';
+		this.cdnUrl = 'https://cdn.intelliprove.com';
 		this.locale = locale;
 		
 		IntelliProveWidgets.load(this.cdnUrl)
@@ -449,7 +449,7 @@ class IntelliProveWidgets {
 	async fetchLoadingWidget(retries = 0) {
 		if (retries >= 5) return "Loading...";
 
-		const uri = `${this.cdnUrl}/content/widget-loading.html`;
+		const uri = `${this.cdnUrl}/content/v1/widget-loading.html`;
 		const requestOptions = {
 		  method: "GET",
 		  redirect: "follow"
