@@ -283,11 +283,12 @@ class IntelliProveWidgets {
 	/**
 		* SDK for creating and managing IntelliProve UI Widgets
 		* @constructor
-		* @param {string} url - URL of intelliprove API
 		* @param {string} action_token - Action token (Auth)
+		* @param {string} url - URL of intelliprove API
 		* @param {string} locale - Language of widgets
+		* @param {string} version - API version
 	*/
-	constructor(url, action_token, locale = 'en', version = 'v2') {
+	constructor(action_token, url = 'https://engine.intelliprove.com', locale = 'en', version = 'v2') {
 		this.url = (url.at(-1) === "/" ? url : url + "/") + version;
 		this.locale = locale;
 		this.api_version = version;
