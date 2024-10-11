@@ -293,7 +293,7 @@ class IntelliProveWidgets {
 		* @param {string} action_token - Action token (Auth)
 		* @param {string} locale - Language of widgets
 	*/
-	constructor(url, action_token, locale = 'en') {
+	constructor(action_token, url = 'https://engine.intelliprove.com', locale = 'en') {
 		this.url = url;
 		this.action_token = action_token;
 		this.modulesLoadStart = Date.now();
