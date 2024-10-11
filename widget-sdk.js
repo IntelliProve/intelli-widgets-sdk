@@ -297,9 +297,10 @@ class IntelliProveWidgets {
 		this.url = url;
 		this.action_token = action_token;
 		this.modulesLoadStart = Date.now();
-		IntelliProveWidgets.load(url)
-
+		this.cdnUrl = 'https://cdn-dev.intelliprove.com';
 		this.locale = locale;
+		
+		IntelliProveWidgets.load(this.cdnUrl)
 
 		this._loadingWidgetPromise = null;
 	}
@@ -421,11 +422,12 @@ class IntelliProveWidgets {
 	/**
 		* Load all required libraries and modules to run IntelliProve UI widgets
 		* Check if required with 'loaded()'
+		* @param {string} cdnUrl - CDN URL to use to fetch modules from
 	*/
-	static load() {
-		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs.js")
-		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/d3.js")
-		IntelliProveWidgets.injectModule("https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/chartjs-plugin-datalabels.js", IntelliProveWidgets.chartJSLoaded)
+	static load(cdnUrl) {
+		IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`)
+		IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`)
+		IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded)
 	}
 
 	/**
@@ -447,7 +449,7 @@ class IntelliProveWidgets {
 	async fetchLoadingWidget(retries = 0) {
 		if (retries >= 5) return "Loading...";
 
-		const uri = "https://intelliprove-js-cdn-dev.s3.eu-west-1.amazonaws.com/widget-loading.html";
+		const uri = `${this.cdnUrl}/content/widget-loading.html`;
 		const requestOptions = {
 		  method: "GET",
 		  redirect: "follow"
