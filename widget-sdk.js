@@ -1,3 +1,9 @@
+/*
+	* @file Contains all the main code to manage intelli widgets in a website
+	* @author Seppe De Langhe <seppe.delanghe@intelliprove.com>
+	* @version 1.0.0
+*/
+
 class IntelliAuthError extends Error {
 	/**
 		* Error: Invalid authentication
