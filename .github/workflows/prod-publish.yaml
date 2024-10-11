@@ -1,0 +1,26 @@
+name: Upload new version to S3 PROD CDN
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.PROD_AWS_REGION }}
+
+      - name: Upload file to S3
+        run: |
+          aws s3 cp "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/beta.js" "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/latest.js"
+
