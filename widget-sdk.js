@@ -295,11 +295,10 @@ class IntelliProveWidgets {
 		* @param {string} version - API version
 	*/
 
-		
 	constructor(action_token, url = 'https://engine.intelliprove.com', locale = 'en', version = 'v2') {
 		this.url = (url.at(-1) === "/" ? url : url + "/") + version;
 		this.action_token = action_token;
-    this.api_version = version;
+		this.api_version = version;
 		this.modulesLoadStart = Date.now();
 		this.cdnUrl = 'https://cdn.intelliprove.com';
 		this.locale = locale;
