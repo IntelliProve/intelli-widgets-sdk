@@ -2,8 +2,9 @@ name: Upload new version to S3 PROD CDN
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "*"
+      - "!*-dev"
 
 jobs:
   upload:

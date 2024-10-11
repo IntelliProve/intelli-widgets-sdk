@@ -3,7 +3,7 @@ name: Upload new version to S3 DEVELOP CDN
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   upload:
