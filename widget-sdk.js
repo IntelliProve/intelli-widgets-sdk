@@ -213,7 +213,7 @@ class IntelliWidget {
 
 		this.instances.push(selector);
 		const uid = this.widgetId + '-' + this.instances.length.toString();
-		const innerHTML = this.innerContent.outerHTML.replace('intelli-widget-id', uid);
+		const innerHTML = this.innerContent.outerHTML.replaceAll('intelli-widget-id', uid);
 		targetElem.innerHTML = innerHTML;
 
 		for (let i = 0; i < this.bodyScripts.length; i++) {
@@ -401,7 +401,7 @@ class IntelliProveWidgets {
 		newScript.type = "text/javascript";
 		let textContent = script.textContent;
 		if (replaceId !== null) {
-			textContent = textContent.replace('intelli-widget-id', replaceId);
+			textContent = textContent.replaceAll('intelli-widget-id', replaceId);
 		}
 
 		newScript.textContent = textContent;
