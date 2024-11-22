@@ -1,7 +1,7 @@
 /*
 	* @file Contains all the main code to manage intelli widgets in a website
 	* @author Seppe De Langhe <seppe.delanghe@intelliprove.com>
-	* @version 1.0.1-dev
+	* @version 1.0.2-dev
 */
 
 class IntelliAuthError extends Error {
@@ -154,7 +154,16 @@ class IntelliWidget {
 		const response = await fetch(this.widgetConfig.baseURL + `/widgets/${this.widgetConfig.name}`, requestOptions);
 		switch (response.status) {
 			case 400:
-				throw new IntelliActionTokenError("Your authentication is valid but it does not contain a link to a user.");
+				try {
+					let body = await response.json()
+					if ('detail' in body && body['detail']) {
+						throw new IntelliWidgetNotFoundError(body['detail']);
+					}
+					throw new IntelliActionTokenError("Your authentication is valid but it does not contain a link to a user.");
+				} catch(e) {
+					console.error(e)
+					throw new IntelliSdkLoadingError('Unexpected error, got status code 400 from API without a valid response body');
+				}
 			case 401:
 				throw new IntelliActionTokenError("Your authentication is invalid. Please double check and/or refresh your authentication.");
 			case 404:
