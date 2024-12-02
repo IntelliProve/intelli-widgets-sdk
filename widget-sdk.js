@@ -474,6 +474,9 @@ class IntelliProveWidgets {
 		return await response.text();
 	}
 
+	/**
+		* Get a HTML containing a loading version of a widget
+	*/
 	async getLoadingWidget() {
 		if (this._loadingWidgetPromise) {
 			return await this._loadingWidgetPromise;
