@@ -1,10 +1,10 @@
 /*
 	* @file Contains all the main code to manage intelli widgets in a website
 	* @author Seppe De Langhe <seppe.delanghe@intelliprove.com>
-	* @version 1.0.3-dev
+	* @version 1.0.4-dev
 */
 
-class IntelliAuthError extends Error {
+export class IntelliAuthError extends Error {
 	/**
 		* Error: Invalid authentication
 		* @constructor
@@ -16,7 +16,7 @@ class IntelliAuthError extends Error {
 	}
 }
 
-class IntelliActionTokenError extends Error {
+export class IntelliActionTokenError extends Error {
 	/**
 		* Error: There is something wrong with the provided action token
 		* @constructor
@@ -28,7 +28,7 @@ class IntelliActionTokenError extends Error {
 	}
 }
 
-class IntelliWidgetNotFoundError extends Error {
+export class IntelliWidgetNotFoundError extends Error {
 	/**
 		* Error: widget or variation for widget not found
 		* @constructor
@@ -40,7 +40,7 @@ class IntelliWidgetNotFoundError extends Error {
 	}
 }
 
-class IntelliInvalidParamaterError extends Error {
+export class IntelliInvalidParamaterError extends Error {
 	/**
 		* Error: Invalid paramater or value for paramater provided
 		* @constructor
@@ -52,7 +52,7 @@ class IntelliInvalidParamaterError extends Error {
 	}
 }
 
-class IntelliUnexpectedError extends Error {
+export class IntelliUnexpectedError extends Error {
 	/**
 		* Error: An unexpected
 		* @constructor
@@ -65,7 +65,7 @@ class IntelliUnexpectedError extends Error {
 }
 
 
-class IntelliSdkLoadingError extends Error {
+export class IntelliSdkLoadingError extends Error {
 	/**
 		* Error: The widget SDK failed to load
 		* @constructor
@@ -79,7 +79,7 @@ class IntelliSdkLoadingError extends Error {
 
 
 
-class IntelliWidgetConfig {
+export class IntelliWidgetConfig {
 	/**
 		* Represents the configuration of an IntelliProve Widget
 		* @param {string} name - The name of the widget
@@ -99,7 +99,7 @@ class IntelliWidgetConfig {
 	}
 }
 
-class IntelliWidget {
+export class IntelliWidget {
 	/**
 		* Represents a IntelliProve UI Widget.
 		* @constructor
@@ -294,7 +294,7 @@ class IntelliWidget {
 }
 
 
-class IntelliProveWidgets {
+export default class IntelliProveWidgets {
 	/**
 		* SDK for creating and managing IntelliProve UI Widgets
 		* @constructor
