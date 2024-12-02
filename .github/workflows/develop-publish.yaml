@@ -37,5 +37,5 @@ jobs:
         run: |
           aws s3 cp ./widget-sdk.js "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
           aws s3 cp ./widget-sdk.js "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/latest.js"
-          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.tgz"
+          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}-dev.tgz"
 
