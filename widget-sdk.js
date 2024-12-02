@@ -1,7 +1,7 @@
 /*
 	* @file Contains all the main code to manage intelli widgets in a website
 	* @author Seppe De Langhe <seppe.delanghe@intelliprove.com>
-	* @version 1.0.2-dev
+	* @version 1.0.2
 */
 
 class IntelliAuthError extends Error {
