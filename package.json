@@ -1,0 +1,17 @@
+{
+	"name": "intelliprove-widget-sdk",
+	"version": "1.0.2",
+	"description": "A front-end SDK that makes configuring and mounting IntelliWidgets to the DOM easy.",
+	"main": "widget-sdk.js",
+	"types": "widget-sdk.js",
+	"scripts": {
+		"test": "echo \"No tests configured!\" && exit 1"
+	},
+	"keywords": [
+		"sdk",
+		"intelliprove",
+		"widgets",
+		"jsdoc"
+	],
+	"author": "Seppe De Langhe <seppe.delanghe@intelliprove.com>",
+}
