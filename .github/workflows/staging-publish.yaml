@@ -19,6 +19,12 @@ jobs:
           chmod +x ./extract-version.sh
           version=$(./extract-version.sh ./widget-sdk.js)
           echo "VERSION=${version}" >> $GITHUB_ENV
+      
+      - name: Modify NPM version & create package
+        id: npm-pack
+        run: |
+          npm version "${{ env.VERSION }}" --no-git-tag-version
+          npm pack
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
@@ -31,6 +37,7 @@ jobs:
         run: |
           aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
           aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/beta.js"
+          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/intelliprove-widget-sdk-${{ env.VERSION }}.tgz"
 
       - name: Invalidate CloudFront cache
         run: |
