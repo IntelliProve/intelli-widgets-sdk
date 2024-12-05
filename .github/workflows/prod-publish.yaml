@@ -18,6 +18,7 @@ jobs:
       - name: Build
         id: npm-build
         run: |
+          npm i
           npm run build
 
       - name: Set up AWS CLI
