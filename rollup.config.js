@@ -18,7 +18,7 @@ const output = isBrowser
 	  exports: 'default'
     }
   : {
-      file: format === 'esm' ? 'dist/esm.js' : 'dist/cjs.js',
+      file: format === 'esm' ? 'dist/index.esm.js' : 'dist/index.cjs.js',
       format: format,
       sourcemap: true,
       exports: 'named'

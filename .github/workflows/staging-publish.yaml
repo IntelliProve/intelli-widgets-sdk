@@ -17,13 +17,13 @@ jobs:
         id: extract_version
         run: |
           chmod +x ./extract-version.sh
-          version=$(./extract-version.sh ./widget-sdk.js)
+          version=$(./extract-version.sh)
           echo "VERSION=${version}" >> $GITHUB_ENV
       
-      - name: Modify NPM version & create package
-        id: npm-pack
+      - name: Build and pack 
+        id: npm-build
         run: |
-          npm version "${{ env.VERSION }}" --no-git-tag-version
+          npm run build
           npm pack
 
       - name: Set up AWS CLI
@@ -35,8 +35,8 @@ jobs:
 
       - name: Upload file to S3
         run: |
-          aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
-          aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/beta.js"
+          aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
+          aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/beta.js"
           aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.tgz"
 
       - name: Invalidate CloudFront cache

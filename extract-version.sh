@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Path to your JavaScript file
-file_path="$1" # Change this to the path of your JS file
-
 # Extract version using grep and sed
-version=$(grep "@version [0-9]\.[0-9]\.[0-9]" -o "$1" | sed 's/@version //')
+version=$(jq -r '.version' package.json)
 
 if [[ -z "$version" ]]; then
   echo "Version not found"

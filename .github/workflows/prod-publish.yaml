@@ -14,6 +14,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Build
+        id: npm-build
+        run: |
+          npm run build
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
@@ -24,7 +29,7 @@ jobs:
 
       - name: Upload file to S3
         run: |
-          aws s3 cp ./widget-sdk.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/latest.js"
+          aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/latest.js"
 
       - name: Invalidate CloudFront cache
         run: |
