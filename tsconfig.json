@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "strict": true,
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "lib": ["ES2015", "DOM"],
+    "skipLibCheck": true
+  },
+  "include": [
+	"src/**/*",
+	"extensions/**/*"
+  ],
+}
