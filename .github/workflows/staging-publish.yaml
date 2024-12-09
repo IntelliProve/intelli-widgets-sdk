@@ -3,7 +3,7 @@ name: Upload new version to S3 STAGING CDN
 on:
   push:
     tags:
-      - '*-beta'
+      - "*-beta"
 
 jobs:
   upload:
@@ -19,8 +19,8 @@ jobs:
           chmod +x ./extract-version.sh
           version=$(./extract-version.sh)
           echo "VERSION=${version}" >> $GITHUB_ENV
-      
-      - name: Build and pack 
+
+      - name: Build and pack
         id: npm-build
         run: |
           npm i
@@ -38,7 +38,7 @@ jobs:
         run: |
           aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
           aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/beta.js"
-          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.tgz"
+          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.tgz"
 
       - name: Invalidate CloudFront cache
         run: |
@@ -47,5 +47,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "eu-west-1"
-
-
