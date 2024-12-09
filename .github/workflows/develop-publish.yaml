@@ -20,7 +20,7 @@ jobs:
           version=$(./extract-version.sh)
           echo "VERSION=${version}" >> $GITHUB_ENV
 
-      - name: Build and pack 
+      - name: Build and pack
         id: npm-build
         run: |
           npm i
@@ -38,5 +38,4 @@ jobs:
         run: |
           aws s3 cp ./dist/browser.js "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.js"
           aws s3 cp ./dist/browser.js "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/latest.js"
-          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}-dev.tgz"
-
+          aws s3 cp "./intelliprove-widget-sdk-${{ env.VERSION }}.tgz" "s3://cdn-dev.intelliprove.com/packages/intelli-widgets/v1/${{ env.VERSION }}.tgz"
