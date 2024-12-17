@@ -178,6 +178,7 @@ export class IntelliWidget {
     const styles: NodeListOf<HTMLStyleElement> = container.querySelectorAll("style");
     const links: NodeListOf<HTMLLinkElement> = container.querySelectorAll("link");
 
+
     this.headElements = [];
     this.headElements.push(...Array.from(scripts).filter((s) => !!s.src));
     this.headElements.push(...Array.from(styles));
@@ -197,6 +198,9 @@ export class IntelliWidget {
     if (!IntelliProveWidgets.loaded()) {
       throw new Error("IntelliProve widgets not loaded!");
     }
+	
+	// unique id for widget + instance
+    const uid = this.widgetId + "-" + this.instances.length.toString();
 
     if (!this.headInjected) {
       for (let headElement of this.headElements) {
@@ -208,7 +212,6 @@ export class IntelliWidget {
     if (!this.instances.includes(selector)) {
       this.instances.push(selector);
     }
-    const uid = this.widgetId + "-" + this.instances.length.toString();
     if (this.innerContent instanceof HTMLElement) {
       const innerHTML = this.innerContent.outerHTML.replaceAll("intelli-widget-id", uid);
       targetElem.innerHTML = innerHTML;
@@ -282,6 +285,7 @@ export class IntelliProveWidgets {
   cdnUrl: string;
   locale: string;
   private _loadingWidgetPromise: Promise<string> | null;
+  static styleIdentifier: string = IntelliProveWidgets.newId('intelliprove-styling-');
 
   constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string = "en", version: string = "v2") {
     this.url = (url.charAt(url.length - 1) === "/" ? url : url + "/") + version;
@@ -292,11 +296,12 @@ export class IntelliProveWidgets {
     this.locale = locale;
 
     IntelliProveWidgets.load(this.cdnUrl);
+	IntelliProveWidgets.createStyleElement();
     this._loadingWidgetPromise = null;
   }
 
-  static newId(length: number = 8): string {
-    let id = "intelli-widget-";
+  static newId(prefix: string = "intelli-widget-", length: number = 8): string {
+    let id = prefix;
     const chars = "abcdefghijklmnopqrstuvwxyz";
     for (let i = 0; i < length; i++) {
       id += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -316,6 +321,21 @@ export class IntelliProveWidgets {
     return IntelliProveWidgets.chartJSLoaded() && IntelliProveWidgets.chartJSPluginsLoaded();
   }
 
+  static createStyleElement() {
+	const styleElement = document.createElement('style');
+	styleElement.id = IntelliProveWidgets.styleIdentifier;
+    document.head.appendChild(styleElement);
+  }
+
+  static appendStyling(css: string) {
+	const styleElement = document.getElementById(IntelliProveWidgets.styleIdentifier);
+	if (!styleElement) {
+		IntelliProveWidgets.createStyleElement();
+	}
+
+	styleElement!.innerText += css;
+  }
+
   static injectHeadScript(script: HTMLScriptElement): void {
     const newScript = document.createElement("script");
     newScript.type = "text/javascript";
@@ -328,7 +348,7 @@ export class IntelliProveWidgets {
   }
 
   static injectHeadStyle(styleElement: HTMLStyleElement): void {
-    document.head.appendChild(styleElement);
+	IntelliProveWidgets.appendStyling(styleElement.innerText);
   }
 
   static injectHeadElement(element: HTMLElement): void {
