@@ -357,6 +357,9 @@ export class IntelliProveWidgets {
 
     newScript.textContent = textContent;
     document.body.appendChild(newScript);
+	window.setTimeout(() => {
+		newScript.remove();
+	}, 500)
   }
 
   static injectModule(uri: string, conditionCheck?: () => boolean): void {
