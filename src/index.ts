@@ -204,7 +204,7 @@ export class IntelliWidget {
 
     if (!this.headInjected) {
       for (let headElement of this.headElements) {
-        IntelliProveWidgets.injectHeadElement(headElement);
+        IntelliProveWidgets.injectHeadElement(headElement, uid);
       }
       this.headInjected = true;
     }
@@ -351,7 +351,10 @@ export class IntelliProveWidgets {
 	IntelliProveWidgets.appendStyling(styleElement.innerText);
   }
 
-  static injectHeadElement(element: HTMLElement): void {
+  static injectHeadElement(element: HTMLElement, replaceId: string | null = null): void {
+	if (replaceId) {
+		element.innerText = element.innerText.replaceAll('intelli-widget-id', replaceId);
+	}
     switch (element.nodeName) {
       case "SCRIPT":
         IntelliProveWidgets.injectHeadScript(element as HTMLScriptElement);

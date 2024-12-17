@@ -1,6 +1,6 @@
 {
   "name": "intelliprove-widget-sdk",
-  "version": "1.1.2",
+  "version": "1.1.2-beta",
   "description": "Intelliprove Widgets SDK",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
