@@ -202,12 +202,9 @@ export class IntelliWidget {
 	// unique id for widget + instance
     const uid = this.widgetId + "-" + this.instances.length.toString();
 
-    if (!this.headInjected) {
-      for (let headElement of this.headElements) {
-        IntelliProveWidgets.injectHeadElement(headElement, uid);
-      }
-      this.headInjected = true;
-    }
+	for (let headElement of this.headElements) {
+	  IntelliProveWidgets.injectHeadElement(headElement, uid);
+	}
 
     if (!this.instances.includes(selector)) {
       this.instances.push(selector);
