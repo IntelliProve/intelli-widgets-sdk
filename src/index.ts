@@ -71,7 +71,7 @@ export class IntelliSdkLoadingError extends Error {
 export interface WidgetConfig {
   appearance: {
     theme: object;
-    language: string;
+    language: string | null;
     variation: string;
   };
   data: object;
@@ -121,7 +121,7 @@ export class IntelliWidget {
     return this.innerContent !== null;
   }
 
-  async fetch(locale: string = "en"): Promise<void> {
+  async fetch(locale: string | null = null): Promise<void> {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Token ${this.widgetConfig.auth}`);
@@ -280,11 +280,11 @@ export class IntelliProveWidgets {
   api_version: string;
   modulesLoadStart: number;
   cdnUrl: string;
-  locale: string;
+  locale: string | null;
   private _loadingWidgetPromise: Promise<string> | null;
   static styleIdentifier: string = IntelliProveWidgets.newId('intelliprove-styling-');
 
-  constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string = "en", version: string = "v2") {
+  constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string | null = null, version: string = "v2") {
     this.url = (url.charAt(url.length - 1) === "/" ? url : url + "/") + version;
     this.action_token = action_token;
     this.api_version = version;
