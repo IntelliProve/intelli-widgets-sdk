@@ -166,7 +166,7 @@ export class IntelliWidget {
         throw new IntelliWidgetNotFoundError(notFoundError["detail"]);
       case 422:
         const validationError = await response.json();
-        throw new IntelliInvalidParamaterError(`'${validationError[0]["loc"]}': ${validationError[0]["msg"]}`);
+        throw new IntelliInvalidParamaterError(`'${validationError["detail"][0]["loc"]}': ${validationError[0]["msg"]}`);
       case 500:
         console.error(await response.text());
         throw new IntelliUnexpectedError(
