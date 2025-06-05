@@ -128,10 +128,6 @@ export class IntelliWidget {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Token ${this.widgetConfig.auth}`);
 
-    const myQueryParams = new URLSearchParams({
-      version: this.widgetConfig.version.toString(),
-    });
-
     const body: WidgetConfig = {
       appearance: {
         theme: this.widgetConfig.themeOverrides,
@@ -148,7 +144,7 @@ export class IntelliWidget {
       redirect: "follow",
     };
 
-    const url = `${this.widgetConfig.baseURL}/widgets/${this.widgetConfig.name}` + myQueryParams;
+    const url = `${this.widgetConfig.baseURL}/widgets/${this.widgetConfig.name}?version=${this.widgetConfig.version}`;
     const response = await fetch(url, requestOptions);
 
     switch (response.status) {
@@ -170,7 +166,7 @@ export class IntelliWidget {
         throw new IntelliWidgetNotFoundError(notFoundError["detail"]);
       case 422:
         const validationError = await response.json();
-        throw new IntelliInvalidParamaterError(`'${validationError[0]["loc"]}': ${validationError[0]["msg"]}`);
+        throw new IntelliInvalidParamaterError(`'${validationError["detail"][0]["loc"]}': ${validationError[0]["msg"]}`);
       case 500:
         console.error(await response.text());
         throw new IntelliUnexpectedError(
