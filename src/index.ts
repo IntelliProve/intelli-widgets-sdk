@@ -71,7 +71,7 @@ export class IntelliSdkLoadingError extends Error {
 export interface WidgetConfig {
   appearance: {
     theme: object;
-    language: string | null;
+    language: string | null;
     variation: string;
   };
   data: object;
@@ -84,14 +84,16 @@ export class IntelliWidgetConfig {
   themeOverrides: object;
   baseURL: string;
   auth: string;
+  version: number;
 
-  constructor(name: string, config: object, variation: string, themeOverrides: object, baseURL: string, auth: string) {
+  constructor(name: string, config: object, variation: string, themeOverrides: object, baseURL: string, auth: string, version: number) {
     this.name = name;
     this.config = config;
     this.variation = variation;
     this.themeOverrides = themeOverrides;
     this.baseURL = baseURL;
     this.auth = auth;
+    this.version = version;
   }
 }
 
@@ -126,6 +128,10 @@ export class IntelliWidget {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Token ${this.widgetConfig.auth}`);
 
+    const myQueryParams = new URLSearchParams({
+      version: this.widgetConfig.version.toString(),
+    });
+
     const body: WidgetConfig = {
       appearance: {
         theme: this.widgetConfig.themeOverrides,
@@ -134,6 +140,7 @@ export class IntelliWidget {
       },
       data: this.widgetConfig.config,
     };
+
     const requestOptions: RequestInit = {
       method: "POST",
       headers: myHeaders,
@@ -141,7 +148,8 @@ export class IntelliWidget {
       redirect: "follow",
     };
 
-    const response = await fetch(this.widgetConfig.baseURL + `/widgets/${this.widgetConfig.name}`, requestOptions);
+    const url = `${this.widgetConfig.baseURL}/widgets/${this.widgetConfig.name}` + myQueryParams;
+    const response = await fetch(url, requestOptions);
 
     switch (response.status) {
       case 400:
@@ -178,7 +186,6 @@ export class IntelliWidget {
     const styles: NodeListOf<HTMLStyleElement> = container.querySelectorAll("style");
     const links: NodeListOf<HTMLLinkElement> = container.querySelectorAll("link");
 
-
     this.headElements = [];
     this.headElements.push(...Array.from(scripts).filter((s) => !!s.src));
     this.headElements.push(...Array.from(styles));
@@ -189,7 +196,6 @@ export class IntelliWidget {
   }
 
   mount(selector: string): void {
-    console.log("mounting");
     const targetElem = document.querySelector<HTMLElement>(selector);
     if (!targetElem) {
       throw new Error(`No element found for selector '${selector}'!`);
@@ -198,13 +204,13 @@ export class IntelliWidget {
     if (!IntelliProveWidgets.loaded()) {
       throw new Error("IntelliProve widgets not loaded!");
     }
-	
-	// unique id for widget + instance
+
+    // unique id for widget + instance
     const uid = this.widgetId + "-" + this.instances.length.toString();
 
-	for (let headElement of this.headElements) {
-	  IntelliProveWidgets.injectHeadElement(headElement, uid);
-	}
+    for (let headElement of this.headElements) {
+      IntelliProveWidgets.injectHeadElement(headElement, uid);
+    }
 
     if (!this.instances.includes(selector)) {
       this.instances.push(selector);
@@ -281,8 +287,10 @@ export class IntelliProveWidgets {
   modulesLoadStart: number;
   cdnUrl: string;
   locale: string | null;
+  defaultWidgetVersion: number = 1;
+
   private _loadingWidgetPromise: Promise<string> | null;
-  static styleIdentifier: string = IntelliProveWidgets.newId('intelliprove-styling-');
+  static styleIdentifier: string = IntelliProveWidgets.newId("intelliprove-styling-");
 
   constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string | null = null, version: string = "v2") {
     this.url = (url.charAt(url.length - 1) === "/" ? url : url + "/") + version;
@@ -293,7 +301,7 @@ export class IntelliProveWidgets {
     this.locale = locale;
 
     IntelliProveWidgets.load(this.cdnUrl);
-	IntelliProveWidgets.createStyleElement();
+    IntelliProveWidgets.createStyleElement();
     this._loadingWidgetPromise = null;
   }
 
@@ -319,18 +327,18 @@ export class IntelliProveWidgets {
   }
 
   static createStyleElement() {
-	const styleElement = document.createElement('style');
-	styleElement.id = IntelliProveWidgets.styleIdentifier;
+    const styleElement = document.createElement("style");
+    styleElement.id = IntelliProveWidgets.styleIdentifier;
     document.head.appendChild(styleElement);
   }
 
   static appendStyling(css: string) {
-	const styleElement = document.getElementById(IntelliProveWidgets.styleIdentifier);
-	if (!styleElement) {
-		IntelliProveWidgets.createStyleElement();
-	}
+    const styleElement = document.getElementById(IntelliProveWidgets.styleIdentifier);
+    if (!styleElement) {
+      IntelliProveWidgets.createStyleElement();
+    }
 
-	styleElement!.innerText += css;
+    styleElement!.innerText += css;
   }
 
   static injectHeadScript(script: HTMLScriptElement): void {
@@ -345,13 +353,13 @@ export class IntelliProveWidgets {
   }
 
   static injectHeadStyle(styleElement: HTMLStyleElement): void {
-	IntelliProveWidgets.appendStyling(styleElement.innerText);
+    IntelliProveWidgets.appendStyling(styleElement.innerText);
   }
 
   static injectHeadElement(element: HTMLElement, replaceId: string | null = null): void {
-	if (replaceId) {
-		element.innerText = element.innerText.replaceAll('intelli-widget-id', replaceId);
-	}
+    if (replaceId) {
+      element.innerText = element.innerText.replaceAll("intelli-widget-id", replaceId);
+    }
     switch (element.nodeName) {
       case "SCRIPT":
         IntelliProveWidgets.injectHeadScript(element as HTMLScriptElement);
@@ -377,9 +385,9 @@ export class IntelliProveWidgets {
 
     newScript.textContent = textContent;
     document.body.appendChild(newScript);
-	window.setTimeout(() => {
-		newScript.remove();
-	}, 500)
+    window.setTimeout(() => {
+      newScript.remove();
+    }, 500);
   }
 
   static injectModule(uri: string, conditionCheck?: () => boolean): void {
@@ -410,6 +418,10 @@ export class IntelliProveWidgets {
     window.postMessage({ target: "intelli-widgets", kind: "language", data: this.locale });
   }
 
+  setDefaultWidgetVersion(version: number): void {
+    this.defaultWidgetVersion = version;
+  }
+
   async fetchLoadingWidget(retries: number = 0): Promise<string> {
     if (retries >= 5) return "Loading...";
 
@@ -436,10 +448,23 @@ export class IntelliProveWidgets {
     return this.getLoadingWidget();
   }
 
-  async getWidget(name: string, config: object, variation: string = "default", themeOverrides: object = {}): Promise<IntelliWidget> {
-    const widgetConfig = new IntelliWidgetConfig(name, config, variation, themeOverrides, this.url, this.action_token);
+  async getWidget(
+    name: string,
+    config: object,
+    variation: string = "default",
+    themeOverrides: object = {},
+    version: number | null = null
+  ): Promise<IntelliWidget> {
+    const widgetConfig = new IntelliWidgetConfig(
+      name,
+      config,
+      variation,
+      themeOverrides,
+      this.url,
+      this.action_token,
+      version || this.defaultWidgetVersion
+    );
     while (!IntelliProveWidgets.loaded()) {
-      console.log("waiting");
       await new Promise((resolve) => setTimeout(resolve, 50));
       if (this.loadTimeExceeded()) {
         throw new IntelliSdkLoadingError(
@@ -459,10 +484,11 @@ export class IntelliProveWidgets {
     name: string,
     config: object,
     variation: string = "default",
-    themeOverrides: object = {}
+    themeOverrides: object = {},
+    version: number | null = null
   ): Promise<IntelliWidget> {
     const loadingWidget = await this.getLoadingWidget();
-    const widgetPromise = this.getWidget(name, config, variation, themeOverrides);
+    const widgetPromise = this.getWidget(name, config, variation, themeOverrides, version);
 
     const elem = document.querySelector<HTMLElement>(selector);
     if (elem) {
