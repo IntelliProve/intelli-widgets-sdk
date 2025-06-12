@@ -470,7 +470,7 @@ export class IntelliProveWidgets {
     }
 
     let widget = new IntelliWidget(IntelliProveWidgets.newId(), widgetConfig);
-    await widget.fetch();
+    await widget.fetch(this.locale);
 
     return widget;
   }
