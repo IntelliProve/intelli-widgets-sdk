@@ -285,7 +285,7 @@ export class IntelliProveWidgets {
   locale: string | null;
   defaultWidgetVersion: number = 1;
 
-  private _loadingWidgetPromise: Promise<string> | null;
+  private _loadingWidgetPromises: { [name: string]: Promise<string> };
   static styleIdentifier: string = IntelliProveWidgets.newId("intelliprove-styling-");
 
   constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string | null = null, version: string = "v2") {
@@ -298,7 +298,7 @@ export class IntelliProveWidgets {
 
     IntelliProveWidgets.load(this.cdnUrl);
     IntelliProveWidgets.createStyleElement();
-    this._loadingWidgetPromise = null;
+	this._loadingWidgetPromises = {};
   }
 
   static newId(prefix: string = "intelli-widget-", length: number = 8): string {
@@ -421,30 +421,28 @@ export class IntelliProveWidgets {
     this.defaultWidgetVersion = version;
   }
 
-  async fetchLoadingWidget(retries: number = 0): Promise<string> {
-    if (retries >= 5) return "Loading...";
+  async fetchLoadingWidget(name: string, retries: number = 0): Promise<string> {
+    if (retries >= 2) return "Loading...";
 
-    const uri = `${this.cdnUrl}/content/v1/widget-loading.html`;
+    const uri = `${this.cdnUrl}/content/v1/loading-states/${name}.html`;
     const requestOptions: RequestInit = {
       method: "GET",
       redirect: "follow",
     };
 
     const response = await fetch(uri, requestOptions);
-    if (response.status !== 200) {
-      return await this.fetchLoadingWidget(retries + 1);
-    }
-
+	if (response.status === 404) return "Loading...";
+    if (response.status !== 200) return await this.fetchLoadingWidget(name, retries + 1);
     return await response.text();
   }
 
-  async getLoadingWidget(): Promise<string> {
-    if (this._loadingWidgetPromise) {
-      return await this._loadingWidgetPromise;
+  async getLoadingWidget(name: string): Promise<string> {
+    if (Object.keys(this._loadingWidgetPromises).includes(name)) {
+      return await this._loadingWidgetPromises[name];
     }
 
-    this._loadingWidgetPromise = this.fetchLoadingWidget();
-    return this.getLoadingWidget();
+	this._loadingWidgetPromises[name] = this.fetchLoadingWidget(name)
+    return this.getLoadingWidget(name);
   }
 
   async getWidget(
@@ -486,7 +484,8 @@ export class IntelliProveWidgets {
     themeOverrides: object = {},
     version: number | null = null
   ): Promise<IntelliWidget> {
-    const loadingWidget = await this.getLoadingWidget();
+	const loadingName = name === 'biomarker' && variation === 'small' ? 'biomarker-xs' : name
+    const loadingWidget = await this.getLoadingWidget(loadingName);
     const widgetPromise = this.getWidget(name, config, variation, themeOverrides, version);
 
     const elem = document.querySelector<HTMLElement>(selector);
