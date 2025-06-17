@@ -1,0 +1,44 @@
+<div
+	style="width: 100%; height: 100%; min-width: 136px; min-height: 168px; display: flex; justify-content: center; align-items: center;">
+	<svg width="352" height="352" viewbox="0 0 352 352" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g>
+			<path
+				d="M204.284 128.284C209.878 122.69 213.688 115.563 215.231 107.804C216.775 100.044 215.983 92.0017 212.955 84.6927C209.928 77.3836 204.801 71.1365 198.223 66.7412C191.645 62.346 183.911 60 176 60C168.089 60 160.355 62.346 153.777 66.7412C147.199 71.1365 142.072 77.3836 139.045 84.6927C136.017 92.0017 135.225 100.044 136.769 107.804C138.312 115.563 142.122 122.69 147.716 128.284"
+				stroke="url(#pathPulseGradient)" style stroke-width="8" stroke-linecap="round"></path>
+
+			<g >
+				<rect x="64" y="162" width="140" height="14" fill="url(#linearPulseGradient)" style></rect>
+				<rect x="64" y="192" width="224" height="8" fill="url(#linearPulseGradient)" style></rect>
+				<rect x="64" y="211" width="224" height="8" fill="url(#linearPulseGradient)" style></rect>
+				<rect x="64" y="230" width="224" height="8" fill="url(#linearPulseGradient)" style></rect>
+				<rect x="64" y="249" width="139" height="8" fill="url(#linearPulseGradient)" style></rect>
+			</g>
+		</g>
+		<defs>
+			<linearGradient id="pathPulseGradient" x1="136" y1="94" x2="216" y2="137" gradientUnits="userSpaceOnUse">
+				<stop offset="0%" stop-color="#E7EAEE" />
+				<stop offset="100%" stop-color="white" />
+				<animateTransform 
+					attributeName="gradientTransform"
+					type="translate"
+					from="-20 0"
+					to="20 0"
+					dur="2s"
+					repeatCount="indefinite"
+				/>
+			</linearGradient>
+
+			<linearGradient id="linearPulseGradient" x1="0%" x2="110%" gradientUnits="userSpaceOnUse" gradientTransform="rotate(35)">
+				<stop stop-color="#E7EAEE33">
+					<animate attributeName="offset" values="0;1" dur="2s" repeatCount="indefinite" />
+				</stop>
+				<stop offset="0.3" stop-color="#EAEDF1">
+					<animate attributeName="offset" values="0.3;1.3" dur="2s" repeatCount="indefinite" />
+				</stop>
+				<stop offset="0.9" stop-color="white">
+					<animate attributeName="offset" values="1;2" dur="2s" repeatCount="indefinite" />
+				</stop>
+			</linearGradient>
+		</defs>
+	</svg>
+</div>
