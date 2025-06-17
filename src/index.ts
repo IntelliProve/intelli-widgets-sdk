@@ -526,7 +526,7 @@ export class IntelliProveWidgets {
 		widget.mount(selector);
 		return widget;
 	} catch (e) {
-		const errorWidget = await this.getErrorWidget(loadingWidget);
+		const errorWidget = await this.getErrorWidget(loadingName);
 		if (elem) elem.innerHTML = errorWidget;
 		throw e; // re-throw after setting error state
 	}
