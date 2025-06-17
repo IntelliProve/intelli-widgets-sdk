@@ -286,6 +286,7 @@ export class IntelliProveWidgets {
   defaultWidgetVersion: number = 1;
 
   private _loadingWidgetPromises: { [name: string]: Promise<string> };
+  private _errorWidgetPromises: { [name: string]: Promise<string> };
   static styleIdentifier: string = IntelliProveWidgets.newId("intelliprove-styling-");
 
   constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string | null = null, version: string = "v2") {
@@ -299,6 +300,7 @@ export class IntelliProveWidgets {
     IntelliProveWidgets.load(this.cdnUrl);
     IntelliProveWidgets.createStyleElement();
 	this._loadingWidgetPromises = {};
+	this._errorWidgetPromises = {};
   }
 
   static newId(prefix: string = "intelli-widget-", length: number = 8): string {
@@ -436,6 +438,22 @@ export class IntelliProveWidgets {
     return await response.text();
   }
 
+  async fetchErrorWidget(name: string, retries: number = 0): Promise<string> {
+	const fallback = '<p style="color: red;">Failed to get widget</p>';
+    if (retries >= 2) return fallback;
+
+    const uri = `${this.cdnUrl}/content/v1/error-states/${name}.html`;
+    const requestOptions: RequestInit = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    const response = await fetch(uri, requestOptions);
+	if (response.status === 404) return fallback;
+    if (response.status !== 200) return await this.fetchErrorWidget(name, retries + 1);
+    return await response.text();
+  }
+
   async getLoadingWidget(name: string): Promise<string> {
     if (Object.keys(this._loadingWidgetPromises).includes(name)) {
       return await this._loadingWidgetPromises[name];
@@ -443,6 +461,16 @@ export class IntelliProveWidgets {
 
 	this._loadingWidgetPromises[name] = this.fetchLoadingWidget(name)
     return this.getLoadingWidget(name);
+  }
+
+
+  async getErrorWidget(name: string): Promise<string> {
+    if (Object.keys(this._errorWidgetPromises).includes(name)) {
+      return await this._errorWidgetPromises[name];
+    }
+
+	this._errorWidgetPromises[name] = this.fetchErrorWidget(name)
+    return this.getErrorWidget(name);
   }
 
   async getWidget(
@@ -493,9 +521,15 @@ export class IntelliProveWidgets {
       elem.innerHTML = loadingWidget;
     }
 
-    const widget = await widgetPromise;
-    widget.mount(selector);
-    return widget;
+	try {
+		const widget = await widgetPromise;
+		widget.mount(selector);
+		return widget;
+	} catch (e) {
+		const errorWidget = await this.getErrorWidget(loadingWidget);
+		if (elem) elem.innerHTML = errorWidget;
+		throw e; // re-throw after setting error state
+	}
   }
 
   clear(): void {
