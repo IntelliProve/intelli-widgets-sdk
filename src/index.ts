@@ -178,7 +178,6 @@ export class IntelliWidget {
     const styles: NodeListOf<HTMLStyleElement> = container.querySelectorAll("style");
     const links: NodeListOf<HTMLLinkElement> = container.querySelectorAll("link");
 
-
     this.headElements = [];
     this.headElements.push(...Array.from(scripts).filter((s) => !!s.src));
     this.headElements.push(...Array.from(styles));
@@ -198,13 +197,13 @@ export class IntelliWidget {
     if (!IntelliProveWidgets.loaded()) {
       throw new Error("IntelliProve widgets not loaded!");
     }
-	
-	// unique id for widget + instance
+
+    // unique id for widget + instance
     const uid = this.widgetId + "-" + this.instances.length.toString();
 
-	for (let headElement of this.headElements) {
-	  IntelliProveWidgets.injectHeadElement(headElement, uid);
-	}
+    for (let headElement of this.headElements) {
+      IntelliProveWidgets.injectHeadElement(headElement, uid);
+    }
 
     if (!this.instances.includes(selector)) {
       this.instances.push(selector);
@@ -282,7 +281,7 @@ export class IntelliProveWidgets {
   cdnUrl: string;
   locale: string;
   private _loadingWidgetPromise: Promise<string> | null;
-  static styleIdentifier: string = IntelliProveWidgets.newId('intelliprove-styling-');
+  static styleIdentifier: string = IntelliProveWidgets.newId("intelliprove-styling-");
 
   constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string = "en", version: string = "v2") {
     this.url = (url.charAt(url.length - 1) === "/" ? url : url + "/") + version;
@@ -293,7 +292,7 @@ export class IntelliProveWidgets {
     this.locale = locale;
 
     IntelliProveWidgets.load(this.cdnUrl);
-	IntelliProveWidgets.createStyleElement();
+    IntelliProveWidgets.createStyleElement();
     this._loadingWidgetPromise = null;
   }
 
@@ -319,18 +318,18 @@ export class IntelliProveWidgets {
   }
 
   static createStyleElement() {
-	const styleElement = document.createElement('style');
-	styleElement.id = IntelliProveWidgets.styleIdentifier;
+    const styleElement = document.createElement("style");
+    styleElement.id = IntelliProveWidgets.styleIdentifier;
     document.head.appendChild(styleElement);
   }
 
   static appendStyling(css: string) {
-	const styleElement = document.getElementById(IntelliProveWidgets.styleIdentifier);
-	if (!styleElement) {
-		IntelliProveWidgets.createStyleElement();
-	}
+    const styleElement = document.getElementById(IntelliProveWidgets.styleIdentifier);
+    if (!styleElement) {
+      IntelliProveWidgets.createStyleElement();
+    }
 
-	styleElement!.innerText += css;
+    styleElement!.innerText += css;
   }
 
   static injectHeadScript(script: HTMLScriptElement): void {
@@ -345,13 +344,13 @@ export class IntelliProveWidgets {
   }
 
   static injectHeadStyle(styleElement: HTMLStyleElement): void {
-	IntelliProveWidgets.appendStyling(styleElement.innerText);
+    IntelliProveWidgets.appendStyling(styleElement.innerText);
   }
 
   static injectHeadElement(element: HTMLElement, replaceId: string | null = null): void {
-	if (replaceId) {
-		element.innerText = element.innerText.replaceAll('intelli-widget-id', replaceId);
-	}
+    if (replaceId) {
+      element.innerText = element.innerText.replaceAll("intelli-widget-id", replaceId);
+    }
     switch (element.nodeName) {
       case "SCRIPT":
         IntelliProveWidgets.injectHeadScript(element as HTMLScriptElement);
@@ -377,9 +376,9 @@ export class IntelliProveWidgets {
 
     newScript.textContent = textContent;
     document.body.appendChild(newScript);
-	window.setTimeout(() => {
-		newScript.remove();
-	}, 500)
+    window.setTimeout(() => {
+      newScript.remove();
+    }, 500);
   }
 
   static injectModule(uri: string, conditionCheck?: () => boolean): void {
@@ -419,12 +418,15 @@ export class IntelliProveWidgets {
       redirect: "follow",
     };
 
-    const response = await fetch(uri, requestOptions);
-    if (response.status !== 200) {
-      return await this.fetchLoadingWidget(retries + 1);
+    try {
+      const response = await fetch(uri, requestOptions);
+      if (response.status !== 200) {
+        return await this.fetchLoadingWidget(retries + 1);
+      }
+      return await response.text();
+    } catch {
+      return "Loading...";
     }
-
-    return await response.text();
   }
 
   async getLoadingWidget(): Promise<string> {
