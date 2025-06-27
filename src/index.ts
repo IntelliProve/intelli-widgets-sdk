@@ -427,10 +427,6 @@ export class IntelliProveWidgets {
     if (retries >= 2) return "Loading...";
 
     let uri = `${this.cdnUrl}/content/v1/loading-states/${name}.html`;
-	if (this.defaultWidgetVersion === 1) {
-	  uri = `${this.cdnUrl}/content/v1/widget-loading.html`;
-	}
-
     const requestOptions: RequestInit = {
       method: "GET",
       redirect: "follow",
@@ -439,6 +435,21 @@ export class IntelliProveWidgets {
     const response = await fetch(uri, requestOptions);
 	if (response.status === 404) return "Loading...";
     if (response.status !== 200) return await this.fetchLoadingWidget(name, retries + 1);
+    return await response.text();
+  }
+
+  async fetchLoadingFixedWidget(retries: number = 0): Promise<string> {
+    if (retries >= 2) return "Loading...";
+
+    let uri = `${this.cdnUrl}/content/v1/widget-loading.html`;
+    const requestOptions: RequestInit = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    const response = await fetch(uri, requestOptions);
+	if (response.status === 404) return "Loading...";
+    if (response.status !== 200) return await this.fetchLoadingFixedWidget(retries + 1);
     return await response.text();
   }
 
@@ -458,13 +469,18 @@ export class IntelliProveWidgets {
     return await response.text();
   }
 
-  async getLoadingWidget(name: string): Promise<string> {
+  async getLoadingWidget(name: string, version: number | null = null): Promise<string> {
+	version = version === null ? this.defaultWidgetVersion : version;
+	if (version === 1) {
+		name = 'fixed';
+	}
+
     if (Object.keys(this._loadingWidgetPromises).includes(name)) {
       return await this._loadingWidgetPromises[name];
     }
 
-	this._loadingWidgetPromises[name] = this.fetchLoadingWidget(name)
-    return this.getLoadingWidget(name);
+	this._loadingWidgetPromises[name] = version === 1 ? this.fetchLoadingFixedWidget() : this.fetchLoadingWidget(name)
+    return this.getLoadingWidget(name, version);
   }
 
 
@@ -517,7 +533,7 @@ export class IntelliProveWidgets {
     version: number | null = null
   ): Promise<IntelliWidget> {
 	const loadingName = name === 'biomarker' && variation === 'small' ? 'biomarker-xs' : name
-    const loadingWidget = await this.getLoadingWidget(loadingName);
+    const loadingWidget = await this.getLoadingWidget(loadingName, version);
     const widgetPromise = this.getWidget(name, config, variation, themeOverrides, version);
 
     const elem = document.querySelector<HTMLElement>(selector);
