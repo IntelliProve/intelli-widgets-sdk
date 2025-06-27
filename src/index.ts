@@ -426,7 +426,11 @@ export class IntelliProveWidgets {
   async fetchLoadingWidget(name: string, retries: number = 0): Promise<string> {
     if (retries >= 2) return "Loading...";
 
-    const uri = `${this.cdnUrl}/content/v1/loading-states/${name}.html`;
+    let uri = `${this.cdnUrl}/content/v1/loading-states/${name}.html`;
+	if (this.defaultWidgetVersion === 1) {
+	  uri = `${this.cdnUrl}/content/v1/widget-loading.html`;
+	}
+
     const requestOptions: RequestInit = {
       method: "GET",
       redirect: "follow",
