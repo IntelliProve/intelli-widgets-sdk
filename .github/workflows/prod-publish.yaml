@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Build
         id: npm-build
         run: |
@@ -30,7 +30,7 @@ jobs:
 
       - name: Upload file to S3
         run: |
-          aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v1/latest.js"
+          aws s3 cp ./dist/browser.js "s3://cdn.intelliprove.com/packages/intelli-widgets/v2/latest.js"
 
       - name: Invalidate CloudFront cache
         run: |
@@ -39,4 +39,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "eu-west-1"
-
