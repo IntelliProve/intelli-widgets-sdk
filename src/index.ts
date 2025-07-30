@@ -398,7 +398,7 @@ export class IntelliProveWidgets {
 
   static load(cdnUrl: string): void {
     IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`, undefined, "default");
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`, undefined, "module");
+    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`, undefined, "default");
     IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded, "default");
   }
 
