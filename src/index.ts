@@ -388,10 +388,10 @@ export class IntelliProveWidgets {
     }, 500);
   }
 
-  static injectModule(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
+  static injectScript(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
     if (conditionCheck && !conditionCheck()) {
       window.requestAnimationFrame(() => {
-        IntelliProveWidgets.injectModule(uri, conditionCheck);
+        IntelliProveWidgets.injectScript(uri, conditionCheck, scriptType);
       });
       return;
     }
@@ -404,10 +404,10 @@ export class IntelliProveWidgets {
   }
 
   static load(cdnUrl: string): void {
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/swiper-bundle.min.js`, undefined, "default");
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded);
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/chartjs.js`, undefined, "default");
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded, "default");
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/d3.js`, undefined, "default");
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/swiper-bundle.min.js`, undefined, "default");
   }
 
   loadTimeExceeded(): boolean {
@@ -432,10 +432,15 @@ export class IntelliProveWidgets {
       redirect: "follow",
     };
 
-    const response = await fetch(uri, requestOptions);
-    if (response.status === 404) return "Loading...";
-    if (response.status !== 200) return await this.fetchLoadingWidget(name, retries + 1);
-    return await response.text();
+    try {
+      const response = await fetch(uri, requestOptions);
+      if (response.status !== 200) {
+        return await this.fetchLoadingWidget(name, retries + 1);
+      }
+      return await response.text();
+    } catch {
+      return "Loading...";
+    }
   }
 
   async fetchLoadingFixedWidget(retries: number = 0): Promise<string> {
