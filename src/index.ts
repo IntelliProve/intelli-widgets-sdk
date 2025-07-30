@@ -381,10 +381,10 @@ export class IntelliProveWidgets {
     }, 500);
   }
 
-  static injectModule(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
+  static injectScript(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
     if (conditionCheck && !conditionCheck()) {
       window.requestAnimationFrame(() => {
-        IntelliProveWidgets.injectModule(uri, conditionCheck, scriptType);
+        IntelliProveWidgets.injectScript(uri, conditionCheck, scriptType);
       });
       return;
     }
@@ -397,9 +397,9 @@ export class IntelliProveWidgets {
   }
 
   static load(cdnUrl: string): void {
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`, undefined, "default");
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`, undefined, "default");
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded, "default");
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/chartjs.js`, undefined, "default");
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/d3.js`, undefined, "default");
+    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded, "default");
   }
 
   loadTimeExceeded(): boolean {
