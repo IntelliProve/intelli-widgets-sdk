@@ -381,23 +381,25 @@ export class IntelliProveWidgets {
     }, 500);
   }
 
-  static injectModule(uri: string, conditionCheck?: () => boolean): void {
+  static injectModule(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
     if (conditionCheck && !conditionCheck()) {
       window.requestAnimationFrame(() => {
-        IntelliProveWidgets.injectModule(uri, conditionCheck);
+        IntelliProveWidgets.injectModule(uri, conditionCheck, scriptType);
       });
       return;
     }
     const scriptTag = document.createElement("script");
-    scriptTag.type = "module";
+    if (scriptType === "module") {
+      scriptTag.type = "module";
+    }
     scriptTag.src = uri;
     document.head.appendChild(scriptTag);
   }
 
   static load(cdnUrl: string): void {
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded);
+    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`, undefined, "default");
+    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`, undefined, "module");
+    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded, "default");
   }
 
   loadTimeExceeded(): boolean {
