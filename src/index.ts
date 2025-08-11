@@ -339,6 +339,12 @@ export class IntelliProveWidgets {
     styleElement!.innerText += css;
   }
 
+  static newStylingSheet(css: string) {
+	const newStyle = document.createElement("style");
+	newStyle.textContent = css; // use textContent for slightly better perf
+	document.head.appendChild(newStyle);
+  }
+
   static injectHeadScript(script: HTMLScriptElement): void {
     const newScript = document.createElement("script");
     newScript.type = "text/javascript";
@@ -351,7 +357,7 @@ export class IntelliProveWidgets {
   }
 
   static injectHeadStyle(styleElement: HTMLStyleElement): void {
-    IntelliProveWidgets.appendStyling(styleElement.innerText);
+    IntelliProveWidgets.newStylingSheet(styleElement.innerText);
   }
 
   static injectHeadElement(element: HTMLElement, replaceId: string | null = null): void {
