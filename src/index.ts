@@ -23,6 +23,42 @@ if (!String.prototype.replaceAll) {
 }
 
 /*
+ * Utils
+ */
+function InjectWithAMDLoaderDisabled(loadFn: Function): HTMLScriptElement {
+  // @ts-ignore
+  const amdActive = () => typeof window.define === 'function' && window.define.amd;
+
+  // store so we can restore
+  let oldAmd: any;
+  if (amdActive()) {
+	// @ts-ignore
+	oldAmd = window.define.amd;
+
+	// @ts-ignore
+	window.define.amd = undefined;
+  }
+
+  // Call fn
+  const script: HTMLScriptElement = loadFn();
+  console.log('script injected')
+  
+  // Restore AMD
+  const restore = () => {
+	if (amdActive()) {
+	  // @ts-ignore
+	  window.define.amd = oldAmd;
+	}
+  }; 
+  script.addEventListener('load', () => requestAnimationFrame(restore), { once: true });
+  script.addEventListener('error', () => requestAnimationFrame(restore), { once: true });
+
+  return script;
+}
+
+
+
+/*
  * Error classes
  */
 
@@ -105,10 +141,13 @@ export class IntelliWidget {
   headElements: HTMLElement[];
   bodyScripts: HTMLScriptElement[];
   headInjected: boolean = false;
+  
+  private preventAmdLoader: boolean = false;
 
-  constructor(widgetId: string, widgetConfig: IntelliWidgetConfig) {
+  constructor(widgetId: string, widgetConfig: IntelliWidgetConfig, preventAmdLoader: boolean = false) {
     this.widgetId = widgetId;
     this.widgetConfig = widgetConfig;
+	this.preventAmdLoader = preventAmdLoader;
 
     this.innerContent = null;
     this.instances = [];
@@ -121,6 +160,27 @@ export class IntelliWidget {
 
   fetched(): boolean {
     return this.innerContent !== null;
+  }
+
+  private injectBodyScript(script: HTMLScriptElement, replaceId: string | null = null): void {
+	const fn = () => {
+	  const newScript = document.createElement("script");
+	  newScript.type = "text/javascript";
+	  let textContent = script.textContent || "";
+	  if (replaceId !== null) {
+		textContent = textContent.replaceAll("intelli-widget-id", replaceId);
+	  }
+
+	  newScript.textContent = textContent;
+	  document.body.appendChild(newScript);
+	  return newScript;
+	}
+	
+	const newScript = this.preventAmdLoader ? InjectWithAMDLoaderDisabled(fn) : fn();
+
+    window.setTimeout(() => {
+      newScript.remove();
+    }, 500);
   }
 
   async fetch(locale: string | null = null): Promise<void> {
@@ -217,7 +277,7 @@ export class IntelliWidget {
     }
 
     for (let script of this.bodyScripts) {
-      IntelliProveWidgets.injectBodyScript(script, uid);
+      this.injectBodyScript(script, uid);
     }
   }
 
@@ -285,18 +345,20 @@ export class IntelliProveWidgets {
   locale: string | null;
   defaultWidgetVersion: number = 1;
 
+  private preventAmdLoader: boolean = false;
   private _loadingWidgetPromise: Promise<string> | null;
   static styleIdentifier: string = IntelliProveWidgets.newId("intelliprove-styling-");
 
-  constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string | null = null, version: string = "v2") {
+  constructor(action_token: string, url: string = "https://engine.intelliprove.com", locale: string | null = null, version: string = "v2", preventAmdLoader: boolean = false) {
     this.url = (url.charAt(url.length - 1) === "/" ? url : url + "/") + version;
     this.action_token = action_token;
     this.api_version = version;
     this.modulesLoadStart = Date.now();
     this.cdnUrl = "https://cdn.intelliprove.com";
     this.locale = locale;
+	this.preventAmdLoader = preventAmdLoader;
 
-    IntelliProveWidgets.load(this.cdnUrl);
+    this.load(this.cdnUrl);
     IntelliProveWidgets.createStyleElement();
     this._loadingWidgetPromise = null;
   }
@@ -316,6 +378,10 @@ export class IntelliProveWidgets {
 
   static chartJSPluginsLoaded(): boolean {
     return typeof (window as any).ChartDataLabels !== "undefined";
+  }
+
+  static d3Loaded(): boolean {
+	return typeof (window as any).d3 !== "undefined";
   }
 
   static loaded(): boolean {
@@ -371,38 +437,33 @@ export class IntelliProveWidgets {
     }
   }
 
-  static injectBodyScript(script: HTMLScriptElement, replaceId: string | null = null): void {
-    const newScript = document.createElement("script");
-    newScript.type = "text/javascript";
-    let textContent = script.textContent || "";
-    if (replaceId !== null) {
-      textContent = textContent.replaceAll("intelli-widget-id", replaceId);
-    }
-
-    newScript.textContent = textContent;
-    document.body.appendChild(newScript);
-    window.setTimeout(() => {
-      newScript.remove();
-    }, 500);
-  }
-
-  static injectModule(uri: string, conditionCheck?: () => boolean): void {
+  private injectModule(uri: string, conditionCheck?: () => boolean): void {
     if (conditionCheck && !conditionCheck()) {
       window.requestAnimationFrame(() => {
-        IntelliProveWidgets.injectModule(uri, conditionCheck);
+        this.injectModule(uri, conditionCheck);
       });
       return;
     }
-    const scriptTag = document.createElement("script");
-    scriptTag.type = "module";
-    scriptTag.src = uri;
-    document.head.appendChild(scriptTag);
+	
+	const fn = () => {
+		const scriptTag = document.createElement("script");
+		scriptTag.type = "module";
+		scriptTag.src = uri;
+		document.head.appendChild(scriptTag);
+		return scriptTag;
+	}
+
+	if (this.preventAmdLoader) {
+	  InjectWithAMDLoaderDisabled(fn)
+	} else {
+	  fn()
+	}
   }
 
-  static load(cdnUrl: string): void {
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded);
+  private load(cdnUrl: string): void {
+    this.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`);
+    this.injectModule(`${cdnUrl}/third-party/v1/d3.js`);
+    this.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded);
   }
 
   loadTimeExceeded(): boolean {
@@ -469,7 +530,7 @@ export class IntelliProveWidgets {
       }
     }
 
-    let widget = new IntelliWidget(IntelliProveWidgets.newId(), widgetConfig);
+    let widget = new IntelliWidget(IntelliProveWidgets.newId(), widgetConfig, this.preventAmdLoader);
     await widget.fetch(this.locale);
 
     return widget;
