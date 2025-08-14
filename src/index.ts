@@ -299,8 +299,8 @@ export class IntelliProveWidgets {
 
     IntelliProveWidgets.load(this.cdnUrl);
     IntelliProveWidgets.createStyleElement();
-	this._loadingWidgetPromises = {};
-	this._errorWidgetPromises = {};
+    this._loadingWidgetPromises = {};
+    this._errorWidgetPromises = {};
   }
 
   static newId(prefix: string = "intelli-widget-", length: number = 8): string {
@@ -388,7 +388,7 @@ export class IntelliProveWidgets {
     }, 500);
   }
 
-  static injectModule(uri: string, conditionCheck?: () => boolean, scriptType: 'module' | 'default' = 'module'): void {
+  static injectModule(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
     if (conditionCheck && !conditionCheck()) {
       window.requestAnimationFrame(() => {
         IntelliProveWidgets.injectModule(uri, conditionCheck);
@@ -396,9 +396,10 @@ export class IntelliProveWidgets {
       return;
     }
     const scriptTag = document.createElement("script");
-	if (scriptType === 'module') {
-		scriptTag.type = "module";
-	}
+    if (scriptType === "module") {
+      scriptTag.type = "module";
+    }
+    scriptTag.crossOrigin = "anonymous";
     scriptTag.src = uri;
     document.head.appendChild(scriptTag);
   }
@@ -406,7 +407,7 @@ export class IntelliProveWidgets {
   static load(cdnUrl: string): void {
     IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs.js`);
     IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/d3.js`);
-    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/swiper-bundle.min.js`, undefined, 'default');
+    IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/swiper-bundle.min.js`, undefined, "default");
     IntelliProveWidgets.injectModule(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded);
   }
 
@@ -433,7 +434,7 @@ export class IntelliProveWidgets {
     };
 
     const response = await fetch(uri, requestOptions);
-	if (response.status === 404) return "Loading...";
+    if (response.status === 404) return "Loading...";
     if (response.status !== 200) return await this.fetchLoadingWidget(name, retries + 1);
     return await response.text();
   }
@@ -448,13 +449,13 @@ export class IntelliProveWidgets {
     };
 
     const response = await fetch(uri, requestOptions);
-	if (response.status === 404) return "Loading...";
+    if (response.status === 404) return "Loading...";
     if (response.status !== 200) return await this.fetchLoadingFixedWidget(retries + 1);
     return await response.text();
   }
 
   async fetchErrorWidget(name: string, retries: number = 0): Promise<string> {
-	const fallback = '<p style="color: red;">Failed to get widget</p>';
+    const fallback = '<p style="color: red;">Failed to get widget</p>';
     if (retries >= 2) return fallback;
 
     const uri = `${this.cdnUrl}/content/v1/error-states/${name}.html`;
@@ -464,32 +465,31 @@ export class IntelliProveWidgets {
     };
 
     const response = await fetch(uri, requestOptions);
-	if (response.status === 404) return fallback;
+    if (response.status === 404) return fallback;
     if (response.status !== 200) return await this.fetchErrorWidget(name, retries + 1);
     return await response.text();
   }
 
   async getLoadingWidget(name: string, version: number | null = null): Promise<string> {
-	version = version === null ? this.defaultWidgetVersion : version;
-	if (version === 1) {
-		name = 'fixed';
-	}
+    version = version === null ? this.defaultWidgetVersion : version;
+    if (version === 1) {
+      name = "fixed";
+    }
 
     if (Object.keys(this._loadingWidgetPromises).includes(name)) {
       return await this._loadingWidgetPromises[name];
     }
 
-	this._loadingWidgetPromises[name] = version === 1 ? this.fetchLoadingFixedWidget() : this.fetchLoadingWidget(name)
+    this._loadingWidgetPromises[name] = version === 1 ? this.fetchLoadingFixedWidget() : this.fetchLoadingWidget(name);
     return this.getLoadingWidget(name, version);
   }
-
 
   async getErrorWidget(name: string): Promise<string> {
     if (Object.keys(this._errorWidgetPromises).includes(name)) {
       return await this._errorWidgetPromises[name];
     }
 
-	this._errorWidgetPromises[name] = this.fetchErrorWidget(name)
+    this._errorWidgetPromises[name] = this.fetchErrorWidget(name);
     return this.getErrorWidget(name);
   }
 
@@ -532,7 +532,7 @@ export class IntelliProveWidgets {
     themeOverrides: object = {},
     version: number | null = null
   ): Promise<IntelliWidget> {
-	const loadingName = name === 'biomarker' && variation === 'small' ? 'biomarker-xs' : name
+    const loadingName = name === "biomarker" && variation === "small" ? "biomarker-xs" : name;
     const loadingWidget = await this.getLoadingWidget(loadingName, version);
     const widgetPromise = this.getWidget(name, config, variation, themeOverrides, version);
 
@@ -541,15 +541,15 @@ export class IntelliProveWidgets {
       elem.innerHTML = loadingWidget;
     }
 
-	try {
-		const widget = await widgetPromise;
-		widget.mount(selector);
-		return widget;
-	} catch (e) {
-		const errorWidget = await this.getErrorWidget(loadingName);
-		if (elem) elem.innerHTML = errorWidget;
-		throw e; // re-throw after setting error state
-	}
+    try {
+      const widget = await widgetPromise;
+      widget.mount(selector);
+      return widget;
+    } catch (e) {
+      const errorWidget = await this.getErrorWidget(loadingName);
+      if (elem) elem.innerHTML = errorWidget;
+      throw e; // re-throw after setting error state
+    }
   }
 
   clear(): void {
