@@ -316,12 +316,12 @@ export class IntelliProveWidgets {
     return typeof (window as any).Chart !== "undefined";
   }
 
-  static chartJSPluginsLoaded(): boolean {
-    return typeof (window as any).ChartDataLabels !== "undefined";
+  static d3Loaded(): boolean {
+    return typeof (window as any).d3 !== "undefined";
   }
 
   static loaded(): boolean {
-    return IntelliProveWidgets.chartJSLoaded() && IntelliProveWidgets.chartJSPluginsLoaded();
+    return IntelliProveWidgets.chartJSLoaded() && IntelliProveWidgets.d3Loaded();
   }
 
   static createStyleElement() {
