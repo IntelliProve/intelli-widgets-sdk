@@ -394,27 +394,37 @@ export class IntelliProveWidgets {
     }, 500);
   }
 
-  static injectScript(uri: string, conditionCheck?: () => boolean, scriptType: "module" | "default" = "module"): void {
-    if (conditionCheck && !conditionCheck()) {
-      window.requestAnimationFrame(() => {
-        IntelliProveWidgets.injectScript(uri, conditionCheck, scriptType);
-      });
-      return;
+  static injectScriptOnce(uri: string, globalName: any, majorVersion: number): void {
+    const existing: any = window[globalName];
+    if (existing) {
+      let version = existing.version;
+      if (version) {
+        let major = version.split(".")[0];
+        if (major == majorVersion) {
+          console.info(`"${globalName}" v${version} found. Skipping dependency injection.`);
+          return;
+        } else {
+          console.warn(
+            `"${globalName}" v${version} found, but v${majorVersion}.* required. Loading "${globalName}" v${majorVersion}.* ...`
+          );
+        }
+      } else {
+        // Could not read version
+        console.info(`"${globalName}" found, but could not check version.`);
+      }
     }
+
     const scriptTag = document.createElement("script");
-    if (scriptType === "module") {
-      scriptTag.type = "module";
-    }
     scriptTag.src = uri;
     scriptTag.crossOrigin = "anonymous";
     document.head.appendChild(scriptTag);
   }
 
   static load(cdnUrl: string): void {
-    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/chartjs.js`, undefined, "default");
-    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, IntelliProveWidgets.chartJSLoaded, "default");
-    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/d3.js`, undefined, "default");
-    IntelliProveWidgets.injectScript(`${cdnUrl}/third-party/v1/swiper-bundle.min.js`, undefined, "default");
+    IntelliProveWidgets.injectScriptOnce(`${cdnUrl}/third-party/v1/chartjs.js`, "Chart", 4);
+    IntelliProveWidgets.injectScriptOnce(`${cdnUrl}/third-party/v1/chartjs-plugin-datalabels.js`, "ChartDataLabels", 2);
+    IntelliProveWidgets.injectScriptOnce(`${cdnUrl}/third-party/v1/d3.js`, "d3", 7);
+    IntelliProveWidgets.injectScriptOnce(`${cdnUrl}/third-party/v1/swiper-bundle.min.js`, "Swiper", 11);
   }
 
   loadTimeExceeded(): boolean {
