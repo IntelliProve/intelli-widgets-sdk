@@ -42,7 +42,7 @@ jobs:
 
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id EAPK5U8J3EZ65  --paths "/packages/intelli-widgets/*"
+          aws cloudfront create-invalidation --distribution-id EAPK5U8J3EZ65 --paths "/packages/intelli-widgets/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
